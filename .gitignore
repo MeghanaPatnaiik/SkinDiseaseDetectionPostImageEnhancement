@@ -1,0 +1,14 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Model weights
+*.pth
+
+# Kaggle dataset cache
+.cache/
+kagglehub/
+
+# OS files
+.DS_Store
+Thumbs.db
