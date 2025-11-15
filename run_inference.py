@@ -84,7 +84,7 @@ print("\nLoading Enhanced ResNet50 model...")
 model_resnet50 = models.resnet50(pretrained=False)
 model_resnet50.fc = nn.Linear(model_resnet50.fc.in_features, num_classes)
 
-state_50 = torch.load("resnet50_skin_model.pth", map_location=device)
+state_50 = torch.load("resnet50_enhanced_skin_disease_final.pth", map_location=device)
 model_resnet50.load_state_dict(state_50)
 model_resnet50.to(device)
 print(" Enhanced ResNet50 loaded.")
