@@ -17,11 +17,6 @@ download_model.download_models()
 print("\nDownloading dataset from Kaggle...")
 path = kagglehub.dataset_download("shubhamgoel27/dermnet")
 
-# DermNet extracted structure:
-#   dermnet/
-#      train/
-#      test/
-#      validation/
 base_dir = path
 test_dir = os.path.join(base_dir, "test")
 
@@ -78,13 +73,14 @@ def evaluate_model(model, loader):
 
 num_classes = len(class_names)
 
-# ----- Load model A -----
+# ----- Load Enhanced model -----
 print("\nLoading Enhanced ResNet50 model...")
 
 model_resnet50 = models.resnet50(pretrained=False)
+num_ftrs = model_resnet50.fc.in_features
 model_resnet50.fc = nn.Sequential(
     nn.Dropout(0.5),
-    nn.Linear(model_resnet50.fc.in_features, num_classes)
+    nn.Linear(num_ftrs, num_classes)
 )
 
 state_50 = torch.load("resnet50_enhanced_skin_disease_final.pth", map_location=device)
