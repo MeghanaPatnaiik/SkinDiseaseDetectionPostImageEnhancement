@@ -68,47 +68,34 @@ def evaluate_model(model, loader):
 
 
 # ---------------------------
-# 5. Load Both Models Correctly
+# 5. Load ONLY ONE MODEL
 # ---------------------------
-
 num_classes = len(class_names)
 
-# ----- Load Enhanced model -----
 print("\nLoading Enhanced ResNet50 model...")
 
-model_resnet50 = models.resnet50(pretrained=False)
+model_resnet50 = models.resnet50(weights=None)
+
+# FIX ARCHITECTURE TO MATCH YOUR SAVED STATE
 num_ftrs = model_resnet50.fc.in_features
 model_resnet50.fc = nn.Sequential(
     nn.Dropout(0.5),
     nn.Linear(num_ftrs, num_classes)
 )
 
-state_50 = torch.load("resnet50_enhanced_skin_disease_final.pth", map_location=device)
-model_resnet50.load_state_dict(state_50)
+state_dict = torch.load("resnet50_enhanced_skin_disease_final.pth",
+                        map_location=device)
+
+model_resnet50.load_state_dict(state_dict)
 model_resnet50.to(device)
-print(" Enhanced ResNet50 loaded.")
-
-# ----- Load Best model -----
-print("\nLoading Best ResNet50 model...")
-
-model_best = models.resnet50(pretrained=False)
-model_best.fc = nn.Linear(model_best.fc.in_features, num_classes)
-
-state_best = torch.load("best_resnet50_skin.pth", map_location=device)
-model_best.load_state_dict(state_best)
-model_best.to(device)
-print(" Best model loaded.")
+print(" Enhanced ResNet50 loaded.\n")
 
 # ---------------------------
 # 6. Evaluate
 # ---------------------------
 print("\nEvaluating Enhanced ResNet50...")
-acc_resnet50 = evaluate_model(model_resnet50, test_loader)
-print(f"Enhanced ResNet50 Accuracy: {acc_resnet50:.2f}%")
-
-print("\nEvaluating Best ResNet50...")
-acc_best = evaluate_model(model_best, test_loader)
-print(f"Best ResNet50 Accuracy: {acc_best:.2f}%")
+acc = evaluate_model(model_resnet50, test_loader)
+print(f"Enhanced ResNet50 Accuracy: {acc:.2f}%")
 
 # ---------------------------
 # 7. Example Prediction
@@ -121,14 +108,8 @@ print(f"\nExample Image: {example_img}")
 img = Image.open(example_img).convert("RGB")
 img_t = data_transforms(img).unsqueeze(0).to(device)
 
-# --- Predict using Enhanced model ---
-out50 = model_resnet50(img_t)
-_, pred50 = torch.max(out50, 1)
+# Prediction
+out = model_resnet50(img_t)
+_, pred = torch.max(out, 1)
 
-print(f"\nEnhanced ResNet50 Prediction: {class_names[pred50.item()]}")
-
-# --- Predict using Best model ---
-outB = model_best(img_t)
-_, predB = torch.max(outB, 1)
-
-print(f"Best ResNet50 Prediction: {class_names[predB.item()]}")
+print(f"\nPrediction: {class_names[pred.item()]}")
